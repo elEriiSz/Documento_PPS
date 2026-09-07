@@ -3,3 +3,4 @@ main.aux
 main.fdb_latexmk
 main.fls
 main.log
+live_preview.sh

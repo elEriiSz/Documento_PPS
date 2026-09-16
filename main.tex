@@ -5,6 +5,8 @@
 \usepackage[T1]{fontenc}
 \usepackage[spanish]{babel}
 \usepackage{helvet}
+\usepackage{hyperref}
+\usepackage{url}
 
 % Configuración de márgenes
 \usepackage[top=3.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm, headheight=40pt]{geometry}
@@ -37,37 +39,39 @@
 \newpage
 
 \section{Introducción}
-  Para establecer los conocimientos obtenidos durante el recorrido de la carrera, el estudiante debe someterse a una actividad practica que requiera la implementación de dichos conocimientos ya se mediante su inserción al mercado laboral, el desarrollo de una tesis o la incorporación a un proyecto tanto de investigación o de producción ya existente. Este documento trata con el ultimo caso, en el cual se le permitió al estudiante incorporarse al proyecto RT-Constellation bajo la tutela del docente Carlos G. Lopez Pombo.
+  Para establecer los conocimientos obtenidos durante el recorrido de la carrera, el estudiante debe someterse a una actividad practica que requiera la implementación de dichos conocimientos ya se mediante su inserción al mercado laboral, el desarrollo de una tesis o la incorporación a un proyecto tanto de investigación o de producción ya existente. Este documento trata con el ultimo caso, en el cual se le permitió al estudiante incorporarse al proyecto \emph{RT-Constellation}\footnote{Un reporte técnico completo presentando \emph{RT-Constellation} está disponible en: \url{https://github.com/clpombo/clpomboRxiv/blob/main/rt-constellation\%20white\%20paper.pdf}.} bajo la tutela del docente Carlos G. Lopez Pombo.
 
-  La incorporación del estudiante se apoya en la existencia de un problema que este posee la capacidad de resolver. El eje central del trabajo es la reingeniería de la herramienta RT-Constellation, ya desarrollada en conjunto con INVAP S.A.U., y funcional, profundizando una de sus características centrales, la de estar pensada como una constelación de agentes que cooperan a través de una infraestructura de comunicación para poder verificar el comportamiento de un sistema de software. 
+  La incorporación del estudiante se apoya en la existencia de un problema que este posee la capacidad de resolver. El eje central del trabajo es la reingeniería de la herramienta \emph{RT-Constellation}, ya desarrollada en conjunto con INVAP S.A.U.\footnote{\url{https://www.invap.com.ar}.}, y funcional, profundizando una de sus características centrales, la de estar pensada como una constelación de agentes que cooperan a través de una infraestructura de comunicación para poder verificar el comportamiento de un sistema de software. 
   
- Actualmente la herramienta funciona de la siguiente forma, se estructura como una arquitectura descentralizada (por eso se define como una constelación) diseñada para aislar la ejecución del Sistema Bajo Prueba (SUT) de las tareas de verificación. El objetivo de este diseño es evitar que el proceso de análisis, que requiere un alto nivel de procesamiento computacional, se convierta en algo que modifique el tiempo de ejecución del SUT. Para lograrlo, el procesos se divide en agentes independientes que se comunican según el tipo de rol que tengan (productor o consumidor) a travez de una infraestructura de paso de mensajes construida con RabbitMQ. 
+ Actualmente la herramienta funciona de la siguiente forma, se estructura como una arquitectura descentralizada (por eso se define como una constelación) diseñada para aislar la ejecución del Sistema Bajo Prueba (SUT) de las tareas de verificación. El objetivo de este diseño es evitar que el proceso de análisis, que requiere un alto nivel de procesamiento computacional, se convierta en algo que modifique el tiempo de ejecución del SUT. Para lograrlo, el procesos se divide en agentes independientes que se comunican según el tipo de rol que tengan (productor o consumidor) a travez de una infraestructura de paso de mensajes construida con RabbitMQ \footnote{Disponible en: \url{https://www.rabbitmq.com}.}. 
 
- El ciclo de ejecución de RT-Constellation esta centrado sobre dos agentes:
+ El ciclo de ejecución de \emph{RT-Constellation} esta centrado sobre dos agentes:
  \begin{itemize}
-  \item \emph{Event reporter}:
+  \item \emph{Event reporter} (\emph{RT-Reporter}):
     Este agente se encarga de dirigir la ejecución del SUT en un hilo independiente, adquiriendo los datos en tiempo de ejecución para producir un un flujo de eventos que es enviado a un \emph{RabbitMQ exchange} de comunicación llamado \emph{Event exchange}, y
-  \item \emph{Runtime Monitor}:
+  \item \emph{Runtime Monitor} (\emph{RT-Monitor}):
     Este agente actúa como consumidor conectado al \emph{Event exchange} y se encarga de implementar el análisis lógico leyendo y decodificando los eventos entrantes según su clasificación. Durante el procesamiento de eventos, el monitor verifica si la ejecución cumple con las restricciones estructurales esperadas y utiliza un modulo evaluador de propiedades para confirmar su validez. Aparte de esto, el agente gestiona un diccionario con gemelos digitales para simular lógicamente y hacer un seguimiento del estado de los componentes internos del SUT que no son visibles al proceso de verificación.
  \end{itemize}
  Luego de que los eventos sean evaluados existe un proceso de salida e interpretación de resultados que consiste en lo siguiente:
  \begin{enumerate}
-  \item El \emph{Runtime Monitor} produce un veredicto sobre cada propiedad analizada y emite estos resultados hacia un nuevo canal de RabbitMQ llamado \emph{Analysis results exchange}. En caso de detectar una falla, la herramienta también reporta la especificación que sirve como evidencia del error.
+  \item El \emph{RT-Monitor} produce un veredicto sobre cada propiedad analizada y emite estos resultados hacia un nuevo canal de RabbitMQ llamado \emph{Analysis results exchange}. En caso de detectar una falla, la herramienta también reporta la especificación que sirve como evidencia del error.
   \item Diferentes agentes se encargan de leer esta información resultante de forma paralela para resumirla y/o procesarla.
-  \item El agente \emph{Results Logger} lee los resultados del intercambio y genera un reporte detallado en un archivo CSV.
-  \item El agente \emph{Analysis stats} recopila las estadísticas durante el análisis, cuantificando propiedades fallidas o exitosas, y reportando la traza de eventos particular que ha sido ejecutada.
-  \item Por ultimo, la herramienta también provee mecanismos para poder ejecutar nuevamente un análisis de forma idéntica; para esto cuenta con el agente \emph{Event writer}, que permite registrar los eventos emitidos inicialmente en un archivo, y el agente \emph{Event reader}, que permite volver a inyectar estos eventos leídos desde el archivo hacia el \emph{Event exchange}.
+  \item El agente \emph{Results Logger} (\emph{RT-Results-logger}) lee los resultados del intercambio y genera un reporte detallado en un archivo CSV.
+  \item El agente \emph{Statistics Analyzer} (\emph{RT-Analysis-stats}) recopila las estadísticas durante el análisis, cuantificando propiedades fallidas o exitosas, y reportando la traza de eventos particular que ha sido ejecutada.
+  \item Por ultimo, la herramienta también provee mecanismos para poder ejecutar nuevamente un análisis de forma idéntica; para esto cuenta con el agente \emph{Event writer} (\emph{RT-Event-writer}), que permite registrar los eventos emitidos inicialmente en un archivo, y el agente \emph{Event reader} (\emph{RT-Event-reader}), que permite volver a inyectar estos eventos leídos desde el archivo hacia el \emph{Event exchange}.
  \end{enumerate}
 
 \begin{figure}[htbp]
   \centering
   \includegraphics{rt-constellation-workflow}
-  \caption{Workflow del RT-Constellation.}
+  \caption{Workflow del \emph{RT-Constellation}.}
   \label{fig:mi_etiqueta}
 \end{figure}
   
-  Esta forma de trabajar que tiene la herramienta funciona y permite su ejecución exitosa, pero tiene un problema cuando se debe terminar su ejecución y es que actualmente lo que sucede cuando el monitor termina su ejecución al encontrarse con una propiedad errónea, este envía un mensajes de terminación denominados \emph{poison pill} solamente a los agentes que tienen un rol de consumidor en los canales con un rol de productor, dejando en un estado de ejecución permanente aquellos agentes que tienen un rol de productor en los canales que tienen rol de consumidor.
+  Esta forma de trabajar que tiene la herramienta funciona y permite su ejecución exitosa, pero tiene un problema cuando se debe terminar su ejecución. Actualmente los únicos medios de comunicación de los que disponen los agentes de \emph{RT-Constellation} son exchanges destinados a datos producidos / consumidos en el proceso de verificación; así, cuando la ejecución debe terminar, por ejemplo, al encontrar una violación de una propiedad de la especificación, el \emph{RT-Monitor} envía un mensajes de terminación, denominado \emph{poison pill}, a los agentes que tienen un rol de consumidor de mensajes de veredictos. El problema que se deriva de este comportamiento es, de alguna forma, consecuencia de esta forma de trabajo; el momento en que el \emph{RT-Monitor} demuestra la invalidez de una propiedad, sería deseable que esto comunicara la terminación del proceso al \emph{RT-Reporter} que se encuentra ejercitando la ejecución del SUT, pero esto no es posible debido a que el único mecanismo de comunicación entre el \emph{RT-Monitor} y el \emph{RT-Reporter} es el \emph{Event exchange} en el que los roles de productor y consumidor no permiten que el \emph{RT-Monitor} produzca mensajes y el \emph{RT-Reporter} los consuma.
   
-  Debido a esto, el docente le propuso al estudiante la siguiente solución: Hacer una reingeniería de la constelación para que incluya canales de control que permita que los agentes se comuniquen entre si para dar respuesta a este tipo de interacciones independientemente del rol que cumplan en la infraestructura.
+  El objetivo central de este trabajo será la implementación de \emph{exchanges} que posibiliten el intercambio de mensajes de control que permita a los participantes postear mensajes con instrucciones de forma que todos los participantes puedan notificar sus intenciones, y que el resto pueda actuar en consecuencia de estos mensajes. Esta infraestructura puede pensarse como la separación entre canales de comunicación dedicados, y específicos, para control y datos.
+  
+
 \end{document}
 

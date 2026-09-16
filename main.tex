@@ -36,27 +36,27 @@
 
 \newpage
 
-\section{Introduccion}
-  Para establecer los conocimientos obtenidos durante el recorrido de la carrera, el estudiante debe someterse a una actividad practica que requiera la implementacion de dichos conocimientos ya se mediante su insercion al mercado laboral, el desarrollo de una tesis o la incorporacion a un proyecto tanto de investigacion o de produccion ya existente. Este documento trata con el ultimo caso, en el cual se le permitio al estudiante incorporarse al proyecto RT-Constellation bajo la tutela del docente Carlos G. Lopez Pombo.
+\section{Introducción}
+  Para establecer los conocimientos obtenidos durante el recorrido de la carrera, el estudiante debe someterse a una actividad practica que requiera la implementación de dichos conocimientos ya se mediante su inserción al mercado laboral, el desarrollo de una tesis o la incorporación a un proyecto tanto de investigación o de producción ya existente. Este documento trata con el ultimo caso, en el cual se le permitió al estudiante incorporarse al proyecto RT-Constellation bajo la tutela del docente Carlos G. Lopez Pombo.
 
-  La incorporacion del estudiante se basa en el hecho de que existe un problema el cual el estudiante es capaz de resolver, siendo este problema el hacer una reingenieria de una herramienta ya desarrollada y funcional, para que la herramienta sea mas acorde a su objetivo de ser una herramienta modular. 
+  La incorporación del estudiante se apoya en la existencia de un problema que este posee la capacidad de resolver. El eje central del trabajo es la reingeniería de la herramienta RT-Constellation, ya desarrollada en conjunto con INVAP S.A.U., y funcional, profundizando una de sus características centrales, la de estar pensada como una constelación de agentes que cooperan a través de una infraestructura de comunicación para poder verificar el comportamiento de un sistema de software. 
   
- Actualmente la herramienta funciona de la siguiente forma, se estructura como una arquitectura descentralizada (por eso se define como una constelacion) diseñada para aislar la ejecucion del Sistema Bajo Prueba (SUT) de las tareas de verificacion. El objetivo de este diseño es evitar que el proceso de analisis, el cual requiere un alto nivel de procesamiento computacional, se convierta en algo que modifique el tiempo de ejecucion del SUT. Para lograrlo, el procesos se divide en agentes independientes que se comunican segun el tipo de rol que tengan (productor o consumidor) a travez de una infraestructura de paso de mensajes construida con RabbitMQ. 
+ Actualmente la herramienta funciona de la siguiente forma, se estructura como una arquitectura descentralizada (por eso se define como una constelación) diseñada para aislar la ejecución del Sistema Bajo Prueba (SUT) de las tareas de verificación. El objetivo de este diseño es evitar que el proceso de análisis, que requiere un alto nivel de procesamiento computacional, se convierta en algo que modifique el tiempo de ejecución del SUT. Para lograrlo, el procesos se divide en agentes independientes que se comunican según el tipo de rol que tengan (productor o consumidor) a travez de una infraestructura de paso de mensajes construida con RabbitMQ. 
 
- El ciclo de ejecucion de la herramienta esta centrado sobre 2 herramientas:
+ El ciclo de ejecución de RT-Constellation esta centrado sobre dos agentes:
  \begin{itemize}
   \item \emph{Event reporter}:
-    Este agente se encarga de dirigir la ejecucion del SUT en un hilo independiente, adquiriendo los datos en tiempo de ejecucion para producir un un flujo de eventos que es enviado a un canal de comunicacion llamado Event exchange
+    Este agente se encarga de dirigir la ejecución del SUT en un hilo independiente, adquiriendo los datos en tiempo de ejecución para producir un un flujo de eventos que es enviado a un \emph{RabbitMQ exchange} de comunicación llamado \emph{Event exchange}, y
   \item \emph{Runtime Monitor}:
-    Este agente actua como consumidor conectacal al Event exchange y se encarga de implementar el analisis logico leyendo y decodificando los eventos entrantes segun su clasificacion. Durante el procesamiento de eventos, el monitor verifica si la ejecucion cumple con las restricciones estructurales esperadas y utiliza un modulo evaluados de propiedades para confirmar su validez. Aparte de esto, el agente gestiona un diccionario con "gemelos digitales" para simular logicamente y hacer un seguimiento del estado de los componentes internos del SUT que no son visibles al proceso de verificacion
+    Este agente actúa como consumidor conectado al \emph{Event exchange} y se encarga de implementar el análisis lógico leyendo y decodificando los eventos entrantes según su clasificación. Durante el procesamiento de eventos, el monitor verifica si la ejecución cumple con las restricciones estructurales esperadas y utiliza un modulo evaluador de propiedades para confirmar su validez. Aparte de esto, el agente gestiona un diccionario con gemelos digitales para simular lógicamente y hacer un seguimiento del estado de los componentes internos del SUT que no son visibles al proceso de verificación.
  \end{itemize}
- Luego de que los eventos sean evaluados existe un proceso de salida e interpretacion de resultados que consiste en lo siguiente:
+ Luego de que los eventos sean evaluados existe un proceso de salida e interpretación de resultados que consiste en lo siguiente:
  \begin{enumerate}
-  \item El \emph{Runtime Monitor} produce un veredicto sobre cada propiedad analizada y emite estos resultados hacia un nuevo canal de RabbitMQ llamado \emph{Analysis results exchange}. En caso de detectar una falla, la herramienta tambien reporta la especificacion que sirve como evidencia del error.
-  \item Diferentes agentes se encargan de leer esta informacion resultante de forma paralela para resumirla y/o procesarla.
-  \item El agente Results Logger lee los resultados del intercambio y genera un reporte detallado en un archivo CSV.
-  \item El agente \emph{Analysis stats} recopila las estadisticas durante el analisis, cuantificando propiedades fallidas o exitosas, y reportando la traza de eventos particular que ha sido ejecutada.
-  \item Por ultimo, la herramienta tambien provee mecanismos para poder reejecutar analisis de forma identica; para esto cuenta con el agente \emph{Event writer}, el cual permite registrar los eventos emitidos inicialmente en un archivo, y el agente \emph{Event reader}, que permite volver a inyectar estos eventos leidos desde el archivo hacia el Event exchange.
+  \item El \emph{Runtime Monitor} produce un veredicto sobre cada propiedad analizada y emite estos resultados hacia un nuevo canal de RabbitMQ llamado \emph{Analysis results exchange}. En caso de detectar una falla, la herramienta también reporta la especificación que sirve como evidencia del error.
+  \item Diferentes agentes se encargan de leer esta información resultante de forma paralela para resumirla y/o procesarla.
+  \item El agente \emph{Results Logger} lee los resultados del intercambio y genera un reporte detallado en un archivo CSV.
+  \item El agente \emph{Analysis stats} recopila las estadísticas durante el análisis, cuantificando propiedades fallidas o exitosas, y reportando la traza de eventos particular que ha sido ejecutada.
+  \item Por ultimo, la herramienta también provee mecanismos para poder ejecutar nuevamente un análisis de forma idéntica; para esto cuenta con el agente \emph{Event writer}, que permite registrar los eventos emitidos inicialmente en un archivo, y el agente \emph{Event reader}, que permite volver a inyectar estos eventos leídos desde el archivo hacia el \emph{Event exchange}.
  \end{enumerate}
 
 \begin{figure}[htbp]
@@ -66,8 +66,8 @@
   \label{fig:mi_etiqueta}
 \end{figure}
   
-  Esta forma de trabajar que tiene la herramienta funciona y permite su ejecucion exitosa, pero tiene un problema cuando se debe terminar su ejecucion y es que actualmente lo que sucede cuando el monitor termina su ejecucion al encontrarse con una propiedad erronea, este envia un mensajes de terminacion denominados \emph{poison pill} solamente a los agentes que tienen un rol de consumidor en los canales con un rol de productor, dejando en un estado de ejecucion permanente aquellos agentes que tienen un rol de productor en los canales que tienen rol de consumidor.
+  Esta forma de trabajar que tiene la herramienta funciona y permite su ejecución exitosa, pero tiene un problema cuando se debe terminar su ejecución y es que actualmente lo que sucede cuando el monitor termina su ejecución al encontrarse con una propiedad errónea, este envía un mensajes de terminación denominados \emph{poison pill} solamente a los agentes que tienen un rol de consumidor en los canales con un rol de productor, dejando en un estado de ejecución permanente aquellos agentes que tienen un rol de productor en los canales que tienen rol de consumidor.
   
-  Debido a esto, el docente le propuso al estudiante la siguiente solucion: Hacer una reingenieria de la constelacion para que incluya canales de control que permita que los agentes se comuniquen entre si para dar respuesta a este tipo de interacciones independientemente del rol que cumplan en la infraestructura.
+  Debido a esto, el docente le propuso al estudiante la siguiente solución: Hacer una reingeniería de la constelación para que incluya canales de control que permita que los agentes se comuniquen entre si para dar respuesta a este tipo de interacciones independientemente del rol que cumplan en la infraestructura.
 \end{document}
 

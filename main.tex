@@ -7,6 +7,8 @@
 \usepackage{helvet}
 \usepackage{hyperref}
 \usepackage{url}
+\usepackage{natbib}
+\usepackage{float}
 
 % Configuración de márgenes
 \usepackage[top=3.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm, headheight=40pt]{geometry}
@@ -16,6 +18,9 @@
 
 
 \begin{document}
+\bibliography{Referencias}
+\bibliographystyle{plain}
+
 \graphicspath{{images/}}
 
 \vspace*{1.5cm}
@@ -69,9 +74,53 @@
 \end{figure}
   
   Esta forma de trabajar que tiene la herramienta funciona y permite su ejecución exitosa, pero tiene un problema cuando se debe terminar su ejecución. Actualmente los únicos medios de comunicación de los que disponen los agentes de \emph{RT-Constellation} son exchanges destinados a datos producidos / consumidos en el proceso de verificación; así, cuando la ejecución debe terminar, por ejemplo, al encontrar una violación de una propiedad de la especificación, el \emph{RT-Monitor} envía un mensajes de terminación, denominado \emph{poison pill}, a los agentes que tienen un rol de consumidor de mensajes de veredictos. El problema que se deriva de este comportamiento es, de alguna forma, consecuencia de esta forma de trabajo; el momento en que el \emph{RT-Monitor} demuestra la invalidez de una propiedad, sería deseable que esto comunicara la terminación del proceso al \emph{RT-Reporter} que se encuentra ejercitando la ejecución del SUT, pero esto no es posible debido a que el único mecanismo de comunicación entre el \emph{RT-Monitor} y el \emph{RT-Reporter} es el \emph{Event exchange} en el que los roles de productor y consumidor no permiten que el \emph{RT-Monitor} produzca mensajes y el \emph{RT-Reporter} los consuma.
-  
+
   El objetivo central de este trabajo será la implementación de \emph{exchanges} que posibiliten el intercambio de mensajes de control que permita a los participantes postear mensajes con instrucciones de forma que todos los participantes puedan notificar sus intenciones, y que el resto pueda actuar en consecuencia de estos mensajes. Esta infraestructura puede pensarse como la separación entre canales de comunicación dedicados, y específicos, para control y datos.
   
+\section{Desarrollo}
+    Para lograr el objetivo de este trabajo se le dio al estudiante las siguientes consignas:  
+  \begin{itemize}
+    \item Explicitar la notacion a utilizar
+    \item Pensar en casos de uso entre los agentes
+    \item Pensar cuales son las comunicaciones a las cuales hay que darle respuesta
+    \item Pensar cuales son las situaciones a las cuales hay que darle respuesta
+    \item Pensar en el diseño arquitectural de los canales
+  \end{itemize}
+ \subsection{Consignas}
+ \subsubsection{Notacion utilizada}
+ Las notaciones utilizadas para esta tarea es la de Diseño y Modelo mediante la utilizacion del lenguaje UML (Universal Model Language). El profesor sugirio al alumno que profundizara su comprension del lenguaje mediante la lectura de \emph{The unified modeling language user guide, \cite{booch98}} ya que este le permitiria pensar y plasmar de una forma convencional y entendible cada una de las consignas. Dentro del Diseño y modelo se sigue las vistas de lado izquierdo de la figura 2, es decir los modelos logicos.
+   \begin{figure}[H]
+     \centering
+     \includegraphics{modeling-system-architecture}
+     \caption{Modelando la arquitectura de un sistema, \cite[Page 351]{booch98}}
+     \label{fig:mi_etiqueta2}
+   \end{figure}
+  
+
+ \subsubsection{Casos de uso entre los agentes}
+  Los casos de uso que habria entre agentes vienen muy ligados al inicio y finalizacioinc controlada de cada uno de los agentes. Mas detalladamente:
+  \begin{itemize}
+    \item \textbf{Deteccion temprana de la ejecucion del SUT: }Cuando se detecta la invalidez de una propiedad, el agente \emph{RT-Monitor} debe enviar un mensaje de terminacion al resto de agentes que interactuan con el, haciendo que terminen su funcionamiento de forma ordenada.
+    \item \textbf{Sincronizacion de arranque: } Para que la "constelacion" funcione correctamente, los agentes consumidores tienen que ejecutarse antes que los productores. Cuando los consumidores esten listos para recibir datos, estos enviarian un mensaje a los demas agentes avisandoles que pueden comenzar su ejecucion. 
+    \item \textbf{Fnalizacion ordenada del analisis: } Cuando se termina de ejecutar una analisis, el agente \emph{Event Reader} envia un mensaje a los agentes \emph{Results Logger} y \emph{Analysis stats} para que puedan terminar el reporte de forma correcta e iniciar uno nuevo.
+  \end{itemize}
+
+  \subsubsection{Comunicaciones para dar respuesta}
+    Las principales comunicaciones a las cuales los agentes pueden ser del siguiente tipo:
+   \begin{itemize}
+    \item \textbf{Mensajes por asercion fallida: }Estas comunicaciones son las que tienen mayor prioridad, ya que cuando una propiedad tiene como veredicto que fallo, el protocolo a seguir es que el resto de participantes detengan sus procesos. 
+    \item \textbf{Notificacion de intenciones y estado de agentes: }Este tipo de comunicacion notifica al resto de participantes el estado en el que un agentes se encuentra, por ejemplo iniciando, esperando, procesando, etc. 
+    \item \textbf{Notificacion de finalizacion: }Al terminar sus tareas de forma exitosa, los agentes pueden notificarlo entre si para estar listos a comenzar un nuevo monitoreo.
+   \end{itemize}
+
+ \subsubsection{Situaciones para dar respuesta}
+  Muy relacionado a los situaciones anteriores, las respuestas que hay que dar pueden ser las siguientes:
+  \begin{itemize}
+    \item \textbf{Invalidez de una propiedad: }La principal respuesta que este sistema tiene que ofrecer es la terminacion de los agentes que siguen ejecutandose a pesar de que el monitor haya encontrado un veredicto fallido, permitiendo asi ahorrar recursos.
+    \item \textbf{Arranque desincronizado: }Existe la posibilidad de que se empiecen a generar eventos antes de que el monitor este recibiendolos. Para esto la respuesta que se busca es un bloque preventivo hasta que el monitor notifique que esta listo para recibir eventos.
+    \item \textbf{Fin de eventos: }Cuando se inyectan eventos y se alcanza el final del archivo, la respuesta que se busca es que se envie una instruccion de finalizacion a todos los agentes para que se pueda concluir el trrabajo de los agentes para esos eventos y se pueda generar correctamente el analisis. 
+  \end{itemize}
 
 \end{document}
+
 

@@ -116,19 +116,63 @@
   \begin{itemize}
     \item \textbf{Invalidez de una propiedad: }La principal respuesta que este sistema tiene que ofrecer es la terminacion de los agentes que siguen ejecutandose a pesar de que el monitor haya encontrado un veredicto fallido, permitiendo asi ahorrar recursos.
     \item \textbf{Arranque desincronizado: }Existe la posibilidad de que se empiecen a generar eventos antes de que el monitor este recibiendolos. Para esto la respuesta que se busca es un bloque preventivo hasta que el monitor notifique que esta listo para recibir eventos.
-    \item \textbf{Fin de eventos: }Cuando se inyectan eventos y se alcanza el final del archivo, la respuesta que se busca es que se envie una instruccion de finalizacion a todos los agentes para que se pueda concluir el trrabajo de los agentes para esos eventos y se pueda generar correctamente el analisis. 
+    \item \textbf{Fin de eventos: }Cuando se inyectan eventos y se alcanza el final del archivo, la respuesta que se busca es que se envie una instruccion de finalizacion a todos los agentes para que se pueda concluir el trabajo de los agentes para esos eventos y se pueda generar correctamente el analisis. 
   \end{itemize}
 
  \subsubsection{Diseño Arquitectural}
   Establecidas las situaciones, comunicaciones y casos de uso se presenta el siguiente diseño arquitectural basado en las vistas logicas recomendadas por \cite{booch98}:
   \begin{itemize}
     \item \textbf{Use-case view: }
+      
+      La \emph{Figura 3} muestra el nuevo comportamiento del sistema con los canales de control.
     \begin{figure}[H]
       \centering
       \includegraphics[width=\textwidth]{general-use-case-view}
-      \caption{Punto de vista de Casos de Uso}
+      \caption{Punto de vista General de Casos de Uso}
       \label{fig:mi_etiqueta3}
     \end{figure}
+    
+      La \emph{Figura 4} explicita como funciona el sistema actualmente.
+    \begin{figure}[H]
+      \centering
+      \includegraphics[width=\textwidth]{current-use-case-view}
+      \caption{La herramienta actualmente}
+      \label{fig:mi_etiqueta6}
+    \end{figure}
+    
+
+      La \emph{Figura 5} establece como se utiliza el canal de control para abortar la ejecucion.
+    \begin{figure}[H]
+      \centering
+      \includegraphics[width=\textwidth]{poison-pill-use-case-view}
+      \caption{Implementacion Poison Pill}
+      \label{fig:mi_etiqueta7}
+    \end{figure}
+
+      La \emph{Figura 6} muestra como se utiliza el canal de control para sincronizar el inicio de los agentes.
+    \begin{figure}[H]
+      \centering
+      \includegraphics[width=\textwidth]{handshake-use-case-view}
+      \caption{Implementacion con Sincronizacion de inicio}
+      \label{fig:mi_etiqueta8}
+    \end{figure}
+      
+      La \emph{Figura 7} muestra como se utiliza el canal de control para controlar la finalizacion de los agentes.
+    \begin{figure}[H]
+      \centering
+      \includegraphics[width=\textwidth]{finalizacion-use-case-view}
+      \caption{Implementacion con finalizacion ordenada}
+      \label{fig:mi_etiqueta9}
+    \end{figure}
+      
+      En la \emph{Figura 8} se puede observar como es posible intercambiar el RT-Reporter por una inyeccion de eventos manteniendo el funcionamiento del sistema.
+    \begin{figure}[H]
+      \centering
+      \includegraphics[width=\textwidth]{inyeccion-use-case-view}
+      \caption{Reemplazo del RT-Reporter por eventos inyectados}
+      \label{fig:mi_etiqueta10}
+    \end{figure}
+    
     \item \textbf{Design view: }
     \begin{figure}[H]
       \centering
@@ -136,6 +180,7 @@
       \caption{Punto de vista del Diseño estructural}
       \label{fig:mi_etiqueta4}
     \end{figure}
+    
     \item \textbf{Process view: }
     \begin{figure}[H]
       \centering
